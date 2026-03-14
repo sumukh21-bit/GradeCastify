@@ -1,6 +1,8 @@
 <script setup>
 import 'bulma/css/bulma.css'
 import { inject, ref, onMounted, onUnmounted } from 'vue'
+import Dashboard from './components/Dashboard.vue'
+
 
 const supabase = inject('supabase')
 const email = ref('')
@@ -12,6 +14,7 @@ const signIn = async () => {
   await supabase.auth.signInWithPassword({ email: email.value, password: password.value })
   email.value = ''
   password.value = ''
+  
 }
 
 const signUp = async () => {
@@ -27,22 +30,29 @@ const signOut = async () => {
 onMounted(async () => {
   const { data: { session } } = await supabase.auth.getSession()
   user.value = session?.user ?? null
+  console.log(user.value);
 
-  const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+  supabase.auth.onAuthStateChange((_event, session) => {
     user.value = session?.user ?? null
   })
-  authListener.value = listener
+
 })
 
 onUnmounted(() => {
   authListener.value?.subscription.unsubscribe()
 })
+const demoBTN= async () => {
+  user.value = true
+}
 
 </script>
 
 
 <template>
-   <title>Grade Castify</title>
+  <Dashboard v-if="user"></Dashboard>
+
+  <div v-else>
+    <title>Grade Castify</title>
   <nav class="navbar" role="navigation" aria-label="main navigation">
     <img src="./logo.png" alt="logo" width="50">
    <div class="navbar-start is-size-4 has-text-primary">
@@ -86,10 +96,14 @@ onUnmounted(() => {
       <input class="my-3 input is-small" v-model="password" type="password" placeholder="password" />
       <button class="my-3 mx-2 button is-small" @click="signIn">Log in</button>
       <button class="my-3 mx-2 button is-small" @click="signUp">Sign up</button>
+      <button class="my-3 mx-2 button is-small" @click="demoBTN">Demo account</button>
     </div>
   </div>
 
   </div></div>
+
+  </div>
+   
   
   
 </template>
