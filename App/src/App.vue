@@ -3,133 +3,97 @@ import 'bulma/css/bulma.css'
 import { inject, ref, onMounted, onUnmounted } from 'vue'
 import Dashboard from './components/Dashboard.vue'
 
-const supabase = inject('supabase')
 
+const supabase = inject('supabase')
 const email = ref('')
 const password = ref('')
 const user = ref(null)
 const authListener = ref(null)
-const showDashboard = ref(false)
 
 const signIn = async () => {
-  localStorage.removeItem('gc_demo_admin')
-
-  const { error } = await supabase.auth.signInWithPassword({
-    email: email.value,
-    password: password.value
-  })
-
-  if (!error) {
-    email.value = ''
-    password.value = ''
-    showDashboard.value = true
-  }
+  await supabase.auth.signInWithPassword({ email: email.value, password: password.value })
+  email.value = ''
+  password.value = ''
+  
 }
 
 const signUp = async () => {
-  localStorage.removeItem('gc_demo_admin')
-
-  const { error } = await supabase.auth.signUp({
-    email: email.value,
-    password: password.value
-  })
-
-  if (!error) {
-    email.value = ''
-    password.value = ''
-    showDashboard.value = true
-  }
+  await supabase.auth.signUp({ email: email.value, password: password.value })
+  email.value = ''
+  password.value = ''
 }
 
-const enterDemoAdmin = () => {
-  localStorage.setItem('gc_demo_admin', 'true')
-  showDashboard.value = true
+const signOut = async () => {
+  await supabase.auth.signOut()
 }
 
 onMounted(async () => {
-  document.title = 'Grade Castify'
-
   const { data: { session } } = await supabase.auth.getSession()
   user.value = session?.user ?? null
+  console.log(user.value);
 
-  if (user.value) {
-    localStorage.removeItem('gc_demo_admin')
-    showDashboard.value = true
-  }
-
-  const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+  supabase.auth.onAuthStateChange((_event, session) => {
     user.value = session?.user ?? null
-
-    if (session?.user) {
-      localStorage.removeItem('gc_demo_admin')
-      showDashboard.value = true
-    } else if (localStorage.getItem('gc_demo_admin') !== 'true') {
-      showDashboard.value = false
-    }
   })
 
-  authListener.value = listener
 })
 
 onUnmounted(() => {
   authListener.value?.subscription.unsubscribe()
 })
+const demoBTN= async () => {
+  user.value = true
+}
+
 </script>
 
+
 <template>
-  <Dashboard v-if="showDashboard" />
+  <Dashboard v-if="user"></Dashboard>
 
-  <section v-else class="section gc-home-section">
-    <div class="container">
-      <div class="columns is-centered">
-        <div class="column is-8 has-text-centered">
-          <p class="is-size-6 has-text-grey-light mb-3">Student grade tracking platform</p>
-          <h1 class="title is-2 has-text-success mb-4">
-            Track and Predict Grades the Right Way
-          </h1>
-          <p class="subtitle is-5 has-text-grey-light">
-            A clean and simple way to monitor performance, stay organized, and plan ahead with confidence.
-          </p>
-        </div>
-      </div>
+  <div v-else>
+    <title>Grade Castify</title>
 
-      <div class="columns is-centered mt-6">
-        <div class="column is-6">
-          <div class="box has-background-grey-darker p-5">
-            <h2 class="title is-3 has-text-white has-text-centered mb-5">Login</h2>
+    <div class="logo-align"><img src="./GCLOGO.png" alt="logo" style="width:70px;height:70px;" ></div>
+ 
 
-            <div class="field">
-              <label class="label has-text-light">Email</label>
-              <div class="control">
-                <input
-                  class="input"
-                  type="email"
-                  v-model="email"
-                  placeholder="Enter your email"
-                />
-              </div>
-            </div>
-
-            <div class="field">
-              <label class="label has-text-light">Password</label>
-              <div class="control">
-                <input
-                  class="input"
-                  type="password"
-                  v-model="password"
-                  placeholder="Enter your password"
-                />
-              </div>
-            </div>
-
-            <div class="buttons is-centered mt-5">
-              <button class="button gc-accent-btn" @click="signIn">Log in</button>
-              <button class="button is-light" @click="signUp">Sign up</button>
-              <button class="button gc-ghost-btn" @click="enterDemoAdmin">Demo Admin</button>
-            </div>
-          </div>
-        </div>
-      </div>
+  
+  <div class="columns is-centered   ">
+   
+ 
+    <div class="columns is-centered " v-if="user">
+      
+   
+    <div class="my-3 py-5 has-text-centered">
+      <h1 class="py-3 has-text-centered is-size-6">Hello {{ user.email }}</h1> 
+      <button class="py-3 button is-small" @click="signOut">Sign out</button>
     </div>
-  </section>
+  </div>
+  
+
+  <div class="full-center mb-5" v-else>
+     
+    <div class="my-3 py-5 has-text-centered">
+
+      <input class="my-3 input  " v-model="email" placeholder="Email" />
+      <input class="my-3 input "  v-model="password" type="password" placeholder="Password"></input>
+     
+
+
+      <a class="has-text-white is-underlined mt-6 control has-text-left ">Forgot Password</a>
+      <button class="my-3 mx-2 button  is-fullwidth has-background-white has-text-black mb-4" @click="signIn">Log in</button>
+      <button class="my-3 mx-2 button has-background-success has-text-black " @click="signUp">Sign up</button>
+    <button class="my-3 mx-2 button " @click="demoBTN">Demo account</button>
+      
+    </div>
+   
+  </div>
+   
+
+  </div></div>
+
+
+   
+  
+  
 </template>
