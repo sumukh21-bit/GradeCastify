@@ -2,6 +2,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+<<<<<<< HEAD
   height: 75vh;
 }
 
@@ -12,3 +13,267 @@
    justify-content: center;
 
 }
+=======
+  min-height: 75vh;
+}
+
+.dashboard-page {
+  --topbar-height: 96px;
+  min-height: 100vh;
+  background: #0b0f17;
+  color: white;
+  position: relative;
+}
+
+/* top bar */
+.top-bar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  height: var(--topbar-height);
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  background: #0b0f17;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.top-bar-inner {
+  width: 100%;
+  max-width: 1020px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.top-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.menu-btn {
+  min-width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  color: white;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+}
+
+/* logo */
+.logo-text {
+  display: inline-flex;
+  align-items: baseline;
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.logo-main {
+  color: #f5f7fa;
+}
+
+.logo-accent {
+  color: #27e1d1;
+}
+
+.main-layer {
+  position: relative;
+  min-height: calc(100vh - var(--topbar-height));
+}
+
+.main-area {
+  padding: 1rem 1rem 2rem;
+}
+
+.main-wrap {
+  max-width: 1020px;
+  margin: 0 auto;
+}
+
+/* heading */
+.page-head {
+  margin-bottom: 0.8rem;
+}
+
+.top-cards {
+  margin-bottom: 0.5rem;
+}
+
+.bottom-row {
+  margin-top: 0.25rem;
+}
+
+/* cards */
+.info-card {
+  min-height: 122px;
+  padding: 1rem;
+  background: #111723;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 18px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.course-panel,
+.updates-panel {
+  padding: 1rem;
+  background: #111723;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 18px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.user-card,
+.due-card,
+.empty-card {
+  background: #111723;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 18px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.empty-card {
+  padding: 1rem;
+}
+
+.course-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.add-btn {
+  padding: 0 0.95rem;
+  border: none;
+  border-radius: 12px;
+  background: #27e1d1;
+  color: #081018;
+  font-weight: 600;
+}
+
+/* updates */
+.update-item {
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.update-item:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+/* overlay */
+.overlay-bg {
+  position: fixed;
+  top: var(--topbar-height);
+  left: 0;
+  width: 100%;
+  height: calc(100vh - var(--topbar-height));
+  background: rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 24;
+}
+
+.overlay-bg.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* side menu */
+.side-menu {
+  position: fixed;
+  top: var(--topbar-height);
+  left: -260px;
+  width: 260px;
+  height: calc(100vh - var(--topbar-height));
+  overflow-y: auto;
+  z-index: 35;
+  background: #0f141d;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 10px 0 24px rgba(0, 0, 0, 0.35);
+  transition: left 0.25s ease;
+}
+
+.side-menu.open {
+  left: 0;
+}
+
+.side-inner {
+  padding: 1rem;
+}
+
+.user-card,
+.due-card {
+  padding: 1rem;
+}
+
+.user-email {
+  word-break: break-word;
+}
+
+/* menu */
+.menu-label {
+  color: #8f9bad;
+  letter-spacing: 0.04em;
+}
+
+.menu-list a {
+  color: #d7dde7;
+  border-radius: 10px;
+}
+
+.menu-list a:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.menu-list a.is-active {
+  color: #27e1d1;
+  background: rgba(39, 225, 209, 0.12);
+}
+
+.logout-btn {
+  background: #f1f1f3;
+  color: #161616;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+}
+
+/* mobile */
+@media (max-width: 900px) {
+  .top-bar {
+    padding: 1rem;
+  }
+
+  .top-bar-inner {
+    max-width: 100%;
+  }
+
+  .main-wrap {
+    max-width: 100%;
+  }
+
+  .course-top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .side-menu {
+    width: 260px;
+    left: -260px;
+  }
+
+  .side-menu.open {
+    left: 0;
+  }
+}
+>>>>>>> Zeyu_Branch
