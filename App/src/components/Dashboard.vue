@@ -23,105 +23,53 @@ onMounted(async () => {
 })
 </script>
 
-<template>
-  <div class="gc-dashboard-shell is-flex">
-    <Sidebar class="gc-sidebar" />
+<template >
+     <nav>
+      
+      <div class="navbar-end">
+        <nav class="navbar-start title">Grade<h1 class="has-text-success title">Castify</h1></nav>
+      <a class="is-size-6 navbar-item">
+        Sign out
+      </a>
+      <a class="is-size-6 navbar-item is-rounded" href="group_members.html">
+        <button class="has-background-white">{{ displayName }}</button>
+      </a>
+      
+    </div>
 
-    <div class="gc-main-column">
-      <Navbar />
+     </nav>
+  <div>
+ 
+       <h1 class="title is-size-2 has-text-success has-text-centered mt-6">Dashboard</h1>
+    
 
-      <section class="section gc-main-panel">
-        <div class="mb-5">
-          <h1 class="title has-text-white mb-2">Dashboard</h1>
-          <p class="subtitle is-6 has-text-grey-light">Welcome back, {{ displayName }}</p>
-        </div>
-
-        <div class="columns is-variable is-4 mb-2">
-          <div class="column">
-            <div class="box gc-soft-box">
-              <p class="has-text-grey-light mb-2">Current GPA</p>
-              <p class="title has-text-white mb-0">3.72</p>
-            </div>
-          </div>
-
-          <div class="column">
-            <div class="box gc-soft-box">
-              <p class="has-text-grey-light mb-2">Courses Tracked</p>
-              <p class="title has-text-white mb-0">6</p>
-            </div>
-          </div>
-
-          <div class="column">
-            <div class="box gc-soft-box">
-              <p class="has-text-grey-light mb-2">Predicted Final</p>
-              <p class="title has-text-white mb-0">A-</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="box gc-soft-box mb-4">
-          <div class="is-flex is-justify-content-space-between is-align-items-center mb-4">
-            <div>
-              <h2 class="title is-4 has-text-white mb-1">Course Overview</h2>
-              <p class="is-size-7 has-text-grey-light mb-0">Track your current standing and targets</p>
-            </div>
-
-            <div class="buttons are-small mb-0">
-              <button class="button is-dark is-outlined">Filter</button>
-              <button class="button gc-accent-btn">Add Course</button>
-            </div>
-          </div>
-
-          <div class="table-container">
-            <table class="table is-fullwidth is-hoverable gc-table">
-              <thead>
-                <tr>
-                  <th class="has-text-white">Course</th>
-                  <th class="has-text-white">Current</th>
-                  <th class="has-text-white">Target</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Algorithms</td>
-                  <td>81%</td>
-                  <td>85%</td>
-                </tr>
-                <tr>
-                  <td>Database Systems</td>
-                  <td>76%</td>
-                  <td>80%</td>
-                </tr>
-                <tr>
-                  <td>Web Development</td>
-                  <td>88%</td>
-                  <td>90%</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="columns is-variable is-4">
-          <div class="column">
-            <div class="box gc-soft-box">
-              <h2 class="title is-5 has-text-white">Performance Trend</h2>
-              <p class="has-text-grey-light">
-                Recent academic performance metrics will appear here.
-              </p>
-            </div>
-          </div>
-
-          <div class="column">
-            <div class="box gc-soft-box">
-              <h2 class="title is-5 has-text-white">Recommendations</h2>
-              <p class="has-text-grey-light">
-                Smart suggestions and GPA guidance will appear here.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+  </div>
+ 
+  <div class="mainContainer  mt-4 columns is-centered">
+    
+    <div class="  column is-2">
+      <div class="box">
+        <h1 class="is-size-8">Current Average</h1>
+       <h2 class="is-size-3">0</h2></div>
+       
+    </div>
+    <div class="  column is-2">
+      <div class="box">
+        <h1 class="is-size-8">Predicted Average</h1>
+       <h2 class="is-size-3">0</h2></div>
+       
+    </div>
+    <div class="  column is-2">
+      <div class="box"> 
+        <h1 class="is-size-8">Courses Taken</h1>
+       <h2 class="is-size-3">0</h2></div>
+      
     </div>
   </div>
-</template>
+
+  <div class="Courses px-6 column is-8">
+    <h1 class="title px-6 has-text-centered">My Courses <button class="navbar-end mb-6">+ Add</button></h1>
+    
+
+  </div>
+</template> 
