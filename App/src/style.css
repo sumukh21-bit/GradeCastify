@@ -2,18 +2,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-<<<<<<< HEAD
-  height: 75vh;
-}
-
-.logo-align{
-   position: relative;
-   top:170px;
-   display: flex;
-   justify-content: center;
-
-}
-=======
   min-height: 75vh;
 }
 
@@ -276,4 +264,3 @@
     left: 0;
   }
 }
->>>>>>> Zeyu_Branch
