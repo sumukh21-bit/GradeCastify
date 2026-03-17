@@ -75,10 +75,12 @@ const demoBTN= async () => {
      
     <div class="my-3 py-5 has-text-centered">
 
-      <input class="my-3 input  " v-model="email" placeholder="email" />
-      <input class="my-3 input "  v-model="password" type="password" placeholder="password" />
+      <input class="my-3 input  " v-model="email" placeholder="Email" />
+      <input class="my-3 input "  v-model="password" type="password" placeholder="Password"></input>
+     
 
-      <a class="has-text-white is-underlined mt-6 ">Forgot Password</a>
+
+      <a class="has-text-white is-underlined mt-6 control has-text-left ">Forgot Password</a>
       <button class="my-3 mx-2 button  is-fullwidth has-background-white has-text-black mb-4" @click="signIn">Log in</button>
       <button class="my-3 mx-2 button has-background-success has-text-black " @click="signUp">Sign up</button>
     <button class="my-3 mx-2 button " @click="demoBTN">Demo account</button>
