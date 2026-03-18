@@ -6,14 +6,16 @@
 }
 
 .dashboard-page {
-  --topbar-height: 96px;
+  --topbar-height: 88px;
   min-height: 100vh;
   background: #0b0f17;
   color: white;
   position: relative;
 }
 
+
 /* top bar */
+
 .top-bar {
   position: sticky;
   top: 0;
@@ -22,14 +24,17 @@
   display: flex;
   align-items: center;
   padding: 0 1rem;
+  box-sizing: border-box;
   background: #0b0f17;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .top-bar-inner {
+  position: relative;
   width: 100%;
-  max-width: 1020px;
-  margin: 0 auto;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -38,10 +43,12 @@
 .top-left {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.6rem;
 }
 
+
 .menu-btn {
+  width: 44px;
   min-width: 44px;
   height: 44px;
   border-radius: 12px;
@@ -51,6 +58,7 @@
   box-shadow: none;
 }
 
+
 /* logo */
 .logo-text {
   display: inline-flex;
@@ -59,6 +67,7 @@
   font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1;
+  margin: 0;
 }
 
 .logo-main {
@@ -75,13 +84,15 @@
 }
 
 .main-area {
-  padding: 1rem 1rem 2rem;
+  padding: 1.5rem var(--page-gutter) 2.5rem;
 }
 
 .main-wrap {
-  max-width: 1020px;
+  width: 100%;
+  max-width: var(--content-width);
   margin: 0 auto;
 }
+
 
 /* heading */
 .page-head {
@@ -161,9 +172,10 @@
 .overlay-bg {
   position: fixed;
   top: var(--topbar-height);
+  bottom: 0;
   left: 0;
   width: 100%;
-  height: calc(100vh - var(--topbar-height));
+  height: auto;
   background: rgba(0, 0, 0, 0.35);
   opacity: 0;
   pointer-events: none;
@@ -177,12 +189,14 @@
 }
 
 /* side menu */
+
 .side-menu {
   position: fixed;
   top: var(--topbar-height);
+  bottom: 0;
   left: -260px;
   width: 260px;
-  height: calc(100vh - var(--topbar-height));
+  height: auto;
   overflow-y: auto;
   z-index: 35;
   background: #0f141d;
