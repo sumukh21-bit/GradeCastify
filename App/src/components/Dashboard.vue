@@ -1,6 +1,7 @@
 <script setup>
 import { inject, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import GCLOGO from '../GCLOGO.png'
 
 const router = useRouter()
 const supabase = inject('supabase')
@@ -123,7 +124,7 @@ onMounted(async () => {
       </div>
     </header>
 
-    <div class="main-layer">
+
       <div class="overlay-bg" :class="{ active: sidebarOpen }" @click="closeSidebar"></div>
 
       <aside class="side-menu" :class="{ open: sidebarOpen }">
@@ -228,5 +229,5 @@ onMounted(async () => {
         </div>
       </main>
     </div>
-  </div>
+  
 </template>

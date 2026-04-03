@@ -4,6 +4,7 @@ import { inject, ref, onMounted, onUnmounted } from 'vue'
 import Dashboard from './components/Dashboard.vue'
 
 
+
 const supabase = inject('supabase')
 const email = ref('')
 const password = ref('')
@@ -55,6 +56,9 @@ const demoBTN= async () => {
     <title>Grade Castify</title>
 
     <div class="logo-align"><img src="./GCLOGO.png" alt="logo" style="width:70px;height:70px;" ></div>
+
+
+
  
 
   

@@ -1,8 +1,18 @@
+
 .full-center {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 75vh;
+}
+
+.logo-align{
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    top:150px;
+
 }
 
 .dashboard-page {
