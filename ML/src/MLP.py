@@ -7,26 +7,34 @@ import pytorch_lightning as pl
 import pandas as pd
 import numpy as np
 
-class MLP(pl.LightningModule):
-    def __init__(self, input_size, hidden_size, output_size):
-        super(MLP, self).__init__()
-        self.fc1 = nn.Linear(input_size, hidden_size)
-        self.fc2 = nn.Linear(hidden_size, hidden_size // 2)
-        self.fc3 = nn.Linear(hidden_size // 2, output_size)
-        self.relu = nn.ReLU()
-        self.dropout = nn.Dropout(0.2)
 
+
+class MLP(pl.LightningModule):
+    def __init__(self, input_size, hidden_size, output_size, class_weights=None):
+        super(MLP, self).__init__()
+
+        self.layer = nn.Sequential(
+            nn.Linear(input_size, hidden_size),
+            nn.ReLU(),
+            nn.Linear(hidden_size, hidden_size // 2),
+            nn.ReLU(),
+            nn.Linear(hidden_size // 2, output_size),
+        
+         
+
+        )
+        self.dropout = nn.Dropout(0.3)
+        self.loss_fn = nn.CrossEntropyLoss(weight=class_weights)
     def forward(self, x):
-        out = self.dropout(self.relu(self.fc1(x)))
-        out = self.dropout(self.relu(self.fc2(out)))
-        out = self.fc3(out)
+        out = self.dropout(self.dropout((self.layer(x))))
+        
         return out
     
-    def training_step(self, batch, batch_idx):
+    def training_step(self, batch):
         x, y = batch
         preds = self(x)
-        loss = nn.CrossEntropyLoss()(preds, y)
-        self.log('train_loss', loss, on_step=False, on_epoch=True)
+        loss = self.loss_fn(preds, y)
+        self.log('train_loss', loss)
         return loss
     
     def configure_optimizers(self):
@@ -47,4 +55,3 @@ def calculate_current_avg(row):
 
 # define integer mappings for categorical variables
 grade_map = {"A": 4, "B": 3, "C": 2, "D": 1, "F": 0}
-major_map = {"Mathematics": 0, "CS": 1, "Engineering": 2, "Business": 3}

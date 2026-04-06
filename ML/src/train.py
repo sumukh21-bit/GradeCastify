@@ -6,13 +6,13 @@ import matplotlib.pyplot as plt
 import sklearn.metrics as metrics
 import sklearn.model_selection as model_selection
 import sklearn.preprocessing as preprocessing
+from sklearn.utils.class_weight import compute_class_weight
 
 df = pd.read_csv("ML/data/studentperformancedata.csv")
 
 # clean the data and prepare features for training
 df = df.dropna()
 df["current_avg"] = df.apply(calculate_current_avg, axis=1)
-df["Department"] = df["Department"].map(major_map)
 
 # create the feature matrix and target vector
 X = df.loc[:, ["Sleep_Hours_per_Night", "Stress_Level (1-10)", "Attendance (%)", "Department", "current_avg"]].values
@@ -29,6 +29,8 @@ scaler = preprocessing.StandardScaler()
 X_train = torch.tensor(scaler.fit_transform(X_train), dtype=torch.float32)
 X_test = torch.tensor(scaler.transform(X_test), dtype=torch.float32)
 
+
+
 # create datasets and dataloaders
 train_dataset = TensorDataset(X_train, y_train)
 test_dataset = TensorDataset(X_test, y_test)
@@ -44,7 +46,7 @@ model = MLP(input_size, hidden_size, output_size)
 
 # train the model
 logger = pl.loggers.CSVLogger("ML/lightning_logs", name="mlp")
-trainer = pl.Trainer(max_epochs=35, logger=logger, enable_checkpointing=False)
+trainer = pl.Trainer(max_epochs=50, logger=logger, enable_checkpointing=False)
 trainer.fit(model, train_dataloader)
 torch.save(model.state_dict(), "ML/artifacts/mlp.pt")
 
