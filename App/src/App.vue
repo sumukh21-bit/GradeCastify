@@ -1,15 +1,15 @@
 <script setup>
 import 'bulma/css/bulma.css'
 import { inject, ref, onMounted, onUnmounted } from 'vue'
-import Dashboard from './components/Dashboard.vue'
 
-
+// set up Supabase client
 const supabase = inject('supabase')
 const email = ref('')
 const password = ref('')
 const user = ref(null)
 const authListener = ref(null)
 
+// auth functions
 const signIn = async () => {
   await supabase.auth.signInWithPassword({ email: email.value, password: password.value })
   email.value = ''
@@ -27,6 +27,7 @@ const signOut = async () => {
   await supabase.auth.signOut()
 }
 
+// auth state listener
 onMounted(async () => {
   const { data: { session } } = await supabase.auth.getSession()
   user.value = session?.user ?? null
@@ -38,6 +39,7 @@ onMounted(async () => {
 
 })
 
+// Clean up listener on unmount
 onUnmounted(() => {
   authListener.value?.subscription.unsubscribe()
 })
@@ -49,8 +51,10 @@ const demoBTN= async () => {
 
 
 <template>
-  <Dashboard v-if="user"></Dashboard>
+  <!-- route to the dashboard if user is authenticated -->
+  <RouterView v-if="user"></RouterView>
 
+  <!-- login/signup form -->
   <div v-else>
     <title>Grade Castify</title>
 
@@ -80,7 +84,6 @@ const demoBTN= async () => {
      
 
 
-      <a class="has-text-white is-underlined mt-6 control has-text-left ">Forgot Password</a>
       <button class="my-3 mx-2 button  is-fullwidth has-background-white has-text-black mb-4" @click="signIn">Log in</button>
       <button class="my-3 mx-2 button has-background-success has-text-black " @click="signUp">Sign up</button>
     <button class="my-3 mx-2 button " @click="demoBTN">Demo account</button>

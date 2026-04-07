@@ -194,8 +194,8 @@
   position: fixed;
   top: var(--topbar-height);
   bottom: 0;
-  left: -260px;
-  width: 260px;
+  left: -300px;
+  width: 300px;
   height: auto;
   overflow-y: auto;
   z-index: 35;
