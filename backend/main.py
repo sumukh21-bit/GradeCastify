@@ -62,3 +62,4 @@ def predict(req: PredictRequest):
     scaled = scaler.transform(features)
     prediction = int(model.predict(scaled)[0])
     return {"grade": GRADE_MAP[prediction]}
+

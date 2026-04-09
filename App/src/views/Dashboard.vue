@@ -9,8 +9,12 @@ const displayName = ref('User')
 const sidebarOpen = ref(false)
 const upcomingDue = ref('Lab 4 due Mar 20')
 const courses = ref([])
+const loadingCourses = ref(false)
+const coursesError = ref('')
 
-// helper to compute average score for a course, ignoring nulls
+const debug = true
+const log = (...msg) => console.log('[Dashboard]', ...msg)
+
 const getCourseAvg = (c) => {
   const scores = [
     c.midterm_score,
@@ -33,7 +37,6 @@ const getCourseAvg = (c) => {
   return count > 0 ? total / count : null
 }
 
-// compute average across all courses for display in top card
 const currentAvg = computed(() => {
   const list = courses.value
   if (list.length === 0) return '-'
@@ -53,37 +56,91 @@ const currentAvg = computed(() => {
   return (total / count).toFixed(1)
 })
 
-const debug = true
+const loadDemoCoursesFromBackend = async () => {
+  loadingCourses.value = true
+  coursesError.value = ''
+
+  try {
+    log('start fetching demo courses')
+
+    const res = await fetch('http://localhost:3001/api/courses')
+    log('response status:', res.status)
+
+    const data = await res.json()
+    log('courses data:', data)
+
+    courses.value = (data || []).map((item, index) => ({
+      id: `demo-${index}`,
+      course_name: item.course,
+      predicted_grade:
+        item.predicted_grade ||
+        (
+          item.current >= 85 ? 'A'
+          : item.current >= 75 ? 'B'
+          : item.current >= 65 ? 'C'
+          : item.current >= 50 ? 'D'
+          : 'F'
+        ),
+      attendance: item.attendance,
+      midterm_score: item.midterm_score,
+      assignments_avg: item.assignments_avg,
+      quizzes_avg: item.quizzes_avg,
+      participation_score: item.participation_score,
+      projects_score: item.projects_score,
+      is_demo: true
+    }))
+
+    if (debug) {
+      console.log('demo backend courses loaded:', courses.value)
+    }
+  } catch (err) {
+    console.log('demo backend load error:', err)
+    console.error('[Dashboard] fetch failed:', err)
+    coursesError.value = 'Could not load demo courses'
+  } finally {
+    loadingCourses.value = false
+  }
+}
 
 const toggleSidebar = () => {
   sidebarOpen.value = !sidebarOpen.value
-
-  if (debug) {
-    console.log('sidebar toggled:', sidebarOpen.value)
-  }
-
+  if (debug) console.log('sidebar toggled:', sidebarOpen.value)
 }
 
 const closeSidebar = () => {
   sidebarOpen.value = false
-
-  if (debug) {
-    console.log('sidebar closed')
-  }
-
+  if (debug) console.log('sidebar closed')
 }
 
 const deleteCourse = async (id) => {
-  await supabase.from('courses').delete().eq('id', id)
-  courses.value = courses.value.filter(c => c.id !== id)
+  const targetCourse = courses.value.find(c => c.id === id)
+  if (!targetCourse) return
+
+  try {
+    if (targetCourse.is_demo) {
+      const res = await fetch(`http://localhost:3001/api/courses/${id}`, {
+        method: 'DELETE'
+      })
+
+      if (!res.ok) {
+        throw new Error('failed to delete demo course')
+      }
+
+      courses.value = courses.value.filter(c => c.id !== id)
+      return
+    }
+
+    const { error } = await supabase.from('courses').delete().eq('id', id)
+    if (error) throw error
+
+    courses.value = courses.value.filter(c => c.id !== id)
+  } catch (err) {
+    console.log('delete course error:', err)
+  }
 }
 
 const goToAddCourse = () => {
-
-  if (debug) {
-    console.log('go to add course page')
-  }
-
+  if (debug) console.log('go to add course page')
   closeSidebar()
   router.push('/add-course')
 }
@@ -100,16 +157,13 @@ const handleSignOut = async () => {
   try {
     if (supabase) {
       await supabase.auth.signOut()
-
-      if (debug) {
-        console.log('supabase signed out')
-      }
+      if (debug) console.log('supabase signed out')
     }
   } catch (err) {
     console.log('sign out error:', err)
   }
 
-  router.push('/')
+  window.location.reload()
 }
 
 onMounted(async () => {
@@ -118,21 +172,20 @@ onMounted(async () => {
   }
 
   const isDemoAdmin = localStorage.getItem('gc_demo_admin') === 'true'
+  console.log('demo raw value:', localStorage.getItem('gc_demo_admin'))
+  console.log('isDemoAdmin:', isDemoAdmin)
+  log('mounted')
+  log('isDemoAdmin:', isDemoAdmin)
 
   if (isDemoAdmin) {
     displayName.value = 'Demo Admin'
-
-    if (debug) {
-      console.log('demo admin mode')
-    }
-
+    if (debug) console.log('demo admin mode')
+    await loadDemoCoursesFromBackend()
     return
   }
 
   if (!supabase) {
-    if (debug) {
-      console.log('supabase not found')
-    }
+    if (debug) console.log('supabase not found')
     return
   }
 
@@ -146,10 +199,7 @@ onMounted(async () => {
 
     if (session && session.user && session.user.email) {
       displayName.value = session.user.email
-
-      if (debug) {
-        console.log('user email loaded:', displayName.value)
-      }
+      if (debug) console.log('user email loaded:', displayName.value)
     }
 
     if (session?.user?.id) {
@@ -158,6 +208,7 @@ onMounted(async () => {
         .select('*')
         .eq('user_id', session.user.id)
         .order('created_at', { ascending: false })
+
       courses.value = courseData || []
     }
   } catch (err) {
@@ -199,8 +250,7 @@ onMounted(async () => {
               <li><a @click="() => { closeSidebar(); router.push('/profile') }">My Profile</a></li>
             </ul>
           </aside>
-          
-          <!-- ? Will we implement assignment tracking? -->
+
           <div class="box due-card mb-5">
             <p class="is-size-7 has-text-grey mb-2">Next deadline</p>
             <p class="has-text-white">{{ upcomingDue }}</p>
@@ -249,23 +299,65 @@ onMounted(async () => {
                   </button>
                 </div>
 
-                <div v-if="courses.length === 0" class="box empty-card">
+                <div v-if="loadingCourses" class="box empty-card">
+                  <p class="has-text-white has-text-weight-semibold mb-1">Loading courses...</p>
+                  <p class="has-text-grey is-size-7">Please wait a moment.</p>
+                </div>
+
+                <div v-else-if="coursesError" class="box empty-card">
+                  <p class="has-text-white has-text-weight-semibold mb-1">{{ coursesError }}</p>
+                  <p class="has-text-grey is-size-7">Check backend connection.</p>
+                </div>
+
+                <div v-else-if="courses.length === 0" class="box empty-card">
                   <p class="has-text-white has-text-weight-semibold mb-1">No courses added yet.</p>
                   <p class="has-text-grey is-size-7">Add a course to get started.</p>
                 </div>
 
-                <div v-for="course in courses" :key="course.id" class="box empty-card mb-2" style="display:flex; justify-content:space-between; align-items:center;">
+                <div
+                  v-for="course in courses"
+                  :key="course.id"
+                  class="box empty-card mb-2"
+                  style="display:flex; justify-content:space-between; align-items:center;"
+                >
                   <div>
                     <p class="has-text-white has-text-weight-semibold mb-0">{{ course.course_name }}</p>
-                    <p class="has-text-grey is-size-7">Midterm: {{ course.midterm_score != null ? course.midterm_score : 'N/A' }}  |  Attendance: {{ course.attendance != null ? course.attendance : 'N/A' }}%  |  Assignments: {{ course.assignments_avg != null ? course.assignments_avg : 'N/A' }}%  |  Quizzes: {{ course.quizzes_avg != null ? course.quizzes_avg : 'N/A' }}%  |  Participation: {{ course.participation_score != null ? course.participation_score : 'N/A' }}%  |  Projects: {{ course.projects_score != null ? course.projects_score : 'N/A' }}%</p>
+                    <p class="has-text-grey is-size-7">
+                      Midterm: {{ course.midterm_score != null ? course.midterm_score : 'N/A' }}
+                      |
+                      Attendance: {{ course.attendance != null ? course.attendance : 'N/A' }}%
+                      |
+                      Assignments: {{ course.assignments_avg != null ? course.assignments_avg : 'N/A' }}%
+                      |
+                      Quizzes: {{ course.quizzes_avg != null ? course.quizzes_avg : 'N/A' }}%
+                      |
+                      Participation: {{ course.participation_score != null ? course.participation_score : 'N/A' }}%
+                      |
+                      Projects: {{ course.projects_score != null ? course.projects_score : 'N/A' }}%
+                    </p>
                   </div>
+
                   <div style="display:flex; align-items:center; gap:0.75rem;">
                     <span class="tag is-medium" style="background:#27e1d1; color:#0b0f17; font-weight:700;">
                       {{ course.predicted_grade }}
                     </span>
-                    <button type="button" class="delete" @click="deleteCourse(course.id)"></button>
-                    <button type="button" @click="router.push(`/edit-course/${course.id}`)">Edit</button>
 
+                    <button
+                      type="button"
+                      class="button is-small is-danger is-light"
+                      @click="deleteCourse(course.id)"
+                    >
+                      Delete
+                    </button>
+
+                    <button
+                      v-if="!course.is_demo"
+                      type="button"
+                      class="button is-small"
+                      @click="router.push(`/edit-course/${course.id}`)"
+                    >
+                      Edit
+                    </button>
                   </div>
                 </div>
               </div>

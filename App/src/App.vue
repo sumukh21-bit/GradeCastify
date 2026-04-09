@@ -2,101 +2,109 @@
 import 'bulma/css/bulma.css'
 import { inject, ref, onMounted, onUnmounted } from 'vue'
 
-// set up Supabase client
 const supabase = inject('supabase')
 const email = ref('')
 const password = ref('')
 const user = ref(null)
 const authListener = ref(null)
 
-// auth functions
+const refreshAuthState = async () => {
+  const isDemoAdmin = localStorage.getItem('gc_demo_admin') === 'true'
+
+  if (isDemoAdmin) {
+    user.value = { email: 'demo@gradecastify.local' }
+    return
+  }
+
+  const { data: { session } } = await supabase.auth.getSession()
+  user.value = session?.user ?? null
+}
+
 const signIn = async () => {
-  await supabase.auth.signInWithPassword({ email: email.value, password: password.value })
+  localStorage.removeItem('gc_demo_admin')
+  await supabase.auth.signInWithPassword({
+    email: email.value,
+    password: password.value
+  })
   email.value = ''
   password.value = ''
-  
+  await refreshAuthState()
 }
 
 const signUp = async () => {
-  await supabase.auth.signUp({ email: email.value, password: password.value })
+  localStorage.removeItem('gc_demo_admin')
+  await supabase.auth.signUp({
+    email: email.value,
+    password: password.value
+  })
   email.value = ''
   password.value = ''
+  await refreshAuthState()
 }
 
 const signOut = async () => {
+  localStorage.removeItem('gc_demo_admin')
   await supabase.auth.signOut()
+  user.value = null
+  window.location.href = '/'
 }
 
-// auth state listener
-onMounted(async () => {
-  const { data: { session } } = await supabase.auth.getSession()
-  user.value = session?.user ?? null
-  console.log(user.value);
+const demoBTN = async () => {
+  localStorage.setItem('gc_demo_admin', 'true')
+  user.value = { email: 'demo@gradecastify.local' }
+}
 
-  supabase.auth.onAuthStateChange((_event, session) => {
+onMounted(async () => {
+  await refreshAuthState()
+
+  authListener.value = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const isDemoAdmin = localStorage.getItem('gc_demo_admin') === 'true'
+
+    if (isDemoAdmin) {
+      user.value = { email: 'demo@gradecastify.local' }
+      return
+    }
+
     user.value = session?.user ?? null
   })
-
 })
 
-// Clean up listener on unmount
 onUnmounted(() => {
-  authListener.value?.subscription.unsubscribe()
+  if (authListener.value?.data?.subscription) {
+    authListener.value.data.subscription.unsubscribe()
+  }
 })
-const demoBTN= async () => {
-  user.value = true
-}
-
 </script>
 
-
 <template>
-  <!-- route to the dashboard if user is authenticated -->
-  <RouterView v-if="user"></RouterView>
+  <RouterView v-if="user" />
 
-  <!-- login/signup form -->
   <div v-else>
     <title>Grade Castify</title>
 
-    <div class="logo-align"><img src="./GCLOGO.png" alt="logo" style="width:70px;height:70px;" ></div>
- 
+    <div class="logo-align">
+      <img src="./GCLOGO.png" alt="logo" style="width:70px;height:70px;">
+    </div>
 
-  
-  <div class="columns is-centered   ">
-   
- 
-    <div class="columns is-centered " v-if="user">
-      
-   
-    <div class="my-3 py-5 has-text-centered">
-      <h1 class="py-3 has-text-centered is-size-6">Hello {{ user.email }}</h1> 
-      <button class="py-3 button is-small" @click="signOut">Sign out</button>
+    <div class="columns is-centered">
+      <div class="full-center mb-5">
+        <div class="my-3 py-5 has-text-centered">
+          <input class="my-3 input" v-model="email" placeholder="Email" />
+          <input class="my-3 input" v-model="password" type="password" placeholder="Password" />
+
+          <button class="my-3 mx-2 button is-fullwidth has-background-white has-text-black mb-4" @click="signIn">
+            Log in
+          </button>
+
+          <button class="my-3 mx-2 button has-background-success has-text-black" @click="signUp">
+            Sign up
+          </button>
+
+          <button class="my-3 mx-2 button" @click="demoBTN">
+            Demo account
+          </button>
+        </div>
+      </div>
     </div>
   </div>
-  
-
-  <div class="full-center mb-5" v-else>
-     
-    <div class="my-3 py-5 has-text-centered">
-
-      <input class="my-3 input  " v-model="email" placeholder="Email" />
-      <input class="my-3 input "  v-model="password" type="password" placeholder="Password"></input>
-     
-
-
-      <button class="my-3 mx-2 button  is-fullwidth has-background-white has-text-black mb-4" @click="signIn">Log in</button>
-      <button class="my-3 mx-2 button has-background-success has-text-black " @click="signUp">Sign up</button>
-    <button class="my-3 mx-2 button " @click="demoBTN">Demo account</button>
-      
-    </div>
-   
-  </div>
-   
-
-  </div></div>
-
-
-   
-  
-  
 </template>

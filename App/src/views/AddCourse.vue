@@ -19,16 +19,56 @@ const quizzesAvg = ref('')
 const participationScore = ref('')
 const projectsScore = ref('')
 
-// submit course and get grade prediction
+const optionalNum = (v) => v === '' ? null : Number(v)
+
+// submit course
 const submit = async () => {
-  // reset error and set loading state
   error.value = ''
   loading.value = true
-  // get user profile for prediction
+
   try {
+    const isDemoAdmin = localStorage.getItem('gc_demo_admin') === 'true'
+
+    // demo mode -> save directly to csv
+    if (isDemoAdmin) {
+      const scoreForGrade = optionalNum(midtermScore.value) ?? 0
+
+      const saveResponse = await fetch('http://localhost:3001/api/courses', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          course: courseName.value,
+          current: scoreForGrade,
+          attendance: optionalNum(attendance.value),
+          midterm_score: optionalNum(midtermScore.value),
+          assignments_avg: optionalNum(assignmentsAvg.value),
+          quizzes_avg: optionalNum(quizzesAvg.value),
+          participation_score: optionalNum(participationScore.value),
+          projects_score: optionalNum(projectsScore.value),
+          predicted_grade:
+            scoreForGrade >= 85 ? 'A'
+            : scoreForGrade >= 75 ? 'B'
+            : scoreForGrade >= 65 ? 'C'
+            : scoreForGrade >= 50 ? 'D'
+            : 'F'
+        }),
+      })
+
+      if (!saveResponse.ok) {
+        throw new Error('failed to save course to csv')
+      }
+
+      router.push('/')
+      return
+    }
+
+    // normal login mode
     const { data: { session } } = await supabase.auth.getSession()
     const userId = session?.user?.id
-    if (!userId) throw new Error('you are not logged in')
+
+    if (!userId) {
+      throw new Error('you are not logged in')
+    }
 
     const { data: profile } = await supabase
       .from('student_profile')
@@ -40,10 +80,6 @@ const submit = async () => {
       throw new Error('please fill out your profile information before adding a course.')
     }
 
-    // convert empty strings to null and valid numbers to Number type
-    const optionalNum = (v) => v === '' ? null : Number(v)
-
-    // send data to prediction endpoint
     const response = await fetch('http://localhost:8000/predict', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -60,26 +96,33 @@ const submit = async () => {
         sleep_hours_per_night: profile.sleep_hours_per_night,
       }),
     })
-    if (!response.ok) throw new Error('prediction request failed')
+
+    if (!response.ok) {
+      throw new Error('prediction request failed')
+    }
+
     const { grade } = await response.json()
 
-    // save course with predicted grade to database
-    const { error: courseErr } = await supabase
-      .from('courses')
-      .insert({
-        user_id: userId,
-        course_name: courseName.value,
+    const saveResponse = await fetch('http://localhost:3001/api/courses', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        course: courseName.value,
+        current: optionalNum(midtermScore.value) ?? 0,
         attendance: optionalNum(attendance.value),
         midterm_score: optionalNum(midtermScore.value),
         assignments_avg: optionalNum(assignmentsAvg.value),
         quizzes_avg: optionalNum(quizzesAvg.value),
         participation_score: optionalNum(participationScore.value),
         projects_score: optionalNum(projectsScore.value),
-        predicted_grade: grade,
-      })
-    if (courseErr) throw courseErr
+        predicted_grade: grade
+      }),
+    })
 
-    // navigate back to dashboard after saving
+    if (!saveResponse.ok) {
+      throw new Error('failed to save course to csv')
+    }
+
     router.push('/')
   } catch (err) {
     error.value = err.message || 'something went wrong'
@@ -135,6 +178,7 @@ const submit = async () => {
       <button type="submit" :disabled="loading">
         {{ loading ? 'Saving...' : 'Submit & Predict Grade' }}
       </button>
+      <button type="button" @click="router.push('/')">Back</button>
     </form>
   </div>
 </template>
