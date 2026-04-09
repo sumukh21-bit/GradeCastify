@@ -64,38 +64,81 @@ const save = async () => {
 </script>
 
 <template>
-  <div>
-    <button type="button" @click="router.push('/')">Back</button>
-    <h1>My Profile</h1>
-    <p>Metrics used across all your grade predictions.</p>
+  <!-- Repreaded code -->
+  <div class="dashboard-page">
+     <header class="top-bar">
+      <div class="top-bar-inner">
+        <div class="top-left">
+          <button type="button" class="button menu-btn" @click="toggleSidebar">☰</button>
 
-    <form @submit.prevent="save">
-      <div>
-        <label>Study Hours / Week</label>
-        <input type="number" min="0" v-model="studyHours" required />
+          <div class="logo-text">
+            <span class="logo-main">Grade</span>
+            <span class="logo-accent">Castify</span>
+          </div>
+        </div>
       </div>
+    </header>
+    <!-- Repreaded code -->
 
-      <div>
-        <label>Sleep Hours / Night</label>
-        <input type="number" min="0" max="24" step="0.5" v-model="sleepHours" required />
+    <div class="main-area">
+      <div class="main-warp">
+        <button type="button" @click="router.push('/')">Back</button>
+        <section class="page-head">
+          <h1 class="title has-text-white mb-2">My Profile</h1>
+          <p class="has-text-grey-light">Metrics used across all your grade predictions.</p>
+        </section>
+        
+        <form @submit.prevent="save">
+          <div class="columns is-variable is-3 top-cards">
+            <div class="column">
+              <div class="box info-card">
+                <div class="field">
+                  <label class="label">Study Hours / Week</label>
+                  <input class="input" type="number" min="0" v-model="studyHours" required />
+                </div>
+              </div>
+            </div>
+
+            <div class="column">
+              <div class="box info-card">
+                <div class="field">
+                  <label class="label">Sleep Hours / Night</label>
+                  <input class="input" type="number" min="0" max="24" step="0.5" v-model="sleepHours" required />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="columns is-variable is-3 top-cards">
+            <div class="column">
+              <div class="box info-card">
+                <div class="field">
+                  <label class="label">Stress Level (1-10)</label>
+                  <input class="input" type="number" min="1" max="10" v-model="stressLevel" required />
+                </div>
+              </div>
+            </div>
+
+            <div class="column">
+              <div class="box info-card">
+                <div class="field">
+                  <label class="label">Extracurriculars</label>
+                  <input class="input" type="checkbox" v-model="hasExtracurriculars" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <p v-if="error">{{ error }}</p>
+          <p v-if="saved">Saved!</p>
+
+          <div class="buttons is-centered">
+            <button class="button is-primary" type="submit" :disabled="loading">
+              {{ loading ? 'Saving...' : 'Save Profile' }}
+            </button>
+          </div>
+        </form>
       </div>
-
-      <div>
-        <label>Stress Level (1-10)</label>
-        <input type="number" min="1" max="10" v-model="stressLevel" required />
-      </div>
-
-      <div>
-        <label>Extracurriculars</label>
-        <input type="checkbox" v-model="hasExtracurriculars" />
-      </div>
-
-      <p v-if="error">{{ error }}</p>
-      <p v-if="saved">Saved!</p>
-
-      <button type="submit" :disabled="loading">
-        {{ loading ? 'Saving...' : 'Save Profile' }}
-      </button>
-    </form>
+    </div>
   </div>
 </template>
