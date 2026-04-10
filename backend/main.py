@@ -30,10 +30,10 @@ class PredictRequest(BaseModel):
     quizzes_avg: Optional[float] = None
     participation_score: Optional[float] = None
     projects_score: Optional[float] = None
-    study_hours_per_week: float
-    has_extracurriculars: bool
-    stress_level: int
-    sleep_hours_per_night: float
+    study_hours_per_week: float = 10
+    has_extracurriculars: bool = False
+    stress_level: int = 5
+    sleep_hours_per_night: float = 7
 
 # define prediction endpoint
 @app.post("/predict")

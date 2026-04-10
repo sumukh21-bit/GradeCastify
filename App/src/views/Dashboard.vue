@@ -1,6 +1,7 @@
 <script setup>
 import { inject, ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import NoteEditor from './NoteEditor.vue'
 
 const router = useRouter()
 const supabase = inject('supabase')
@@ -197,10 +198,10 @@ onMounted(async () => {
               <li><a class="is-active">Dashboard</a></li>
               <li><a @click="goToAddCourse">Add Course</a></li>
               <li><a @click="() => { closeSidebar(); router.push('/profile') }">My Profile</a></li>
+              <li><a @click="() => { closeSidebar(); router.push('/note-editor') }">Note Editor</a></li>
             </ul>
           </aside>
           
-          <!-- ? Will we implement assignment tracking? -->
           <div class="box due-card mb-5">
             <p class="is-size-7 has-text-grey mb-2">Next deadline</p>
             <p class="has-text-white">{{ upcomingDue }}</p>
@@ -254,18 +255,31 @@ onMounted(async () => {
                   <p class="has-text-grey is-size-7">Add a course to get started.</p>
                 </div>
 
-                <div v-for="course in courses" :key="course.id" class="box empty-card mb-2" style="display:flex; justify-content:space-between; align-items:center;">
+                <div
+                  v-for="course in courses"
+                  :key="course.id"
+                  class="box empty-card mb-2 course-row"
+                >
                   <div>
-                    <p class="has-text-white has-text-weight-semibold mb-0">{{ course.course_name }}</p>
-                    <p class="has-text-grey is-size-7">Midterm: {{ course.midterm_score != null ? course.midterm_score : 'N/A' }}  |  Attendance: {{ course.attendance != null ? course.attendance : 'N/A' }}%  |  Assignments: {{ course.assignments_avg != null ? course.assignments_avg : 'N/A' }}%  |  Quizzes: {{ course.quizzes_avg != null ? course.quizzes_avg : 'N/A' }}%  |  Participation: {{ course.participation_score != null ? course.participation_score : 'N/A' }}%  |  Projects: {{ course.projects_score != null ? course.projects_score : 'N/A' }}%</p>
+                    <p class="has-text-white has-text-weight-semibold mb-0">
+                      {{ course.course_name }}
+                    </p>
+                    <p class="has-text-grey is-size-7">
+                      Midterm: {{ course.midterm_score != null ? course.midterm_score : 'N/A' }} |
+                      Attendance: {{ course.attendance != null ? course.attendance : 'N/A' }}% |
+                      Assignments: {{ course.assignments_avg != null ? course.assignments_avg : 'N/A' }}% |
+                      Quizzes: {{ course.quizzes_avg != null ? course.quizzes_avg : 'N/A' }}% |
+                      Participation: {{ course.participation_score != null ? course.participation_score : 'N/A' }}% |
+                      Projects: {{ course.projects_score != null ? course.projects_score : 'N/A' }}%
+                    </p>
                   </div>
-                  <div style="display:flex; align-items:center; gap:0.75rem;">
-                    <span class="tag is-medium" style="background:#27e1d1; color:#0b0f17; font-weight:700;">
+
+                  <div class="course-actions">
+                    <span class="tag is-medium predicted-tag">
                       {{ course.predicted_grade }}
                     </span>
                     <button type="button" class="delete" @click="deleteCourse(course.id)"></button>
                     <button type="button" @click="router.push(`/edit-course/${course.id}`)">Edit</button>
-
                   </div>
                 </div>
               </div>

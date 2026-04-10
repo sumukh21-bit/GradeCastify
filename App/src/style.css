@@ -278,3 +278,137 @@
     left: 0;
   }
 }
+
+.profile-wrap {
+  max-width: 900px;
+}
+
+.section-card {
+  padding: 1.25rem;
+}
+
+.back-link {
+  background: transparent;
+  border: none;
+  color: #d1d5db;
+  padding: 0;
+  margin-bottom: 0.75rem;
+  cursor: pointer;
+}
+
+.note-editor-area {
+  min-height: 420px;
+  resize: vertical;
+}
+
+.form-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.note-buttons {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.saved-text {
+  color: #8ff7d9;
+}
+
+.note-editor-page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #040816 0%, #060b1d 100%);
+  padding: 2rem;
+}
+
+.note-editor-wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.note-editor-card {
+  background: rgba(10, 16, 32, 0.88);
+  border: 1px solid rgba(80, 120, 255, 0.12);
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
+}
+
+.note-editor-title {
+  color: #ffffff;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.note-editor-subtitle {
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 0.95rem;
+  margin-bottom: 1.25rem;
+}
+
+.note-editor-box {
+  width: 100%;
+  min-height: 70vh;
+  resize: vertical;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  color: #ffffff;
+  padding: 1rem 1.1rem;
+  font-size: 0.98rem;
+  line-height: 1.65;
+  outline: none;
+}
+
+.note-editor-box::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.note-editor-box:focus {
+  border-color: rgba(39, 225, 209, 0.65);
+  box-shadow: 0 0 0 1px rgba(39, 225, 209, 0.18);
+}
+
+.note-editor-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.note-editor-back {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border-radius: 12px;
+  padding: 0.55rem 0.9rem;
+  cursor: pointer;
+}
+
+.note-editor-back:hover {
+  border-color: rgba(39, 225, 209, 0.5);
+  color: #27e1d1;
+}
+
+.course-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.course-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.predicted-tag {
+  background: #27e1d1;
+  color: #0b0f17;
+  font-weight: 700;
+}

@@ -3,6 +3,7 @@ import Dashboard from '../views/Dashboard.vue'
 import AddCourse from '../views/AddCourse.vue'
 import Profile from '../views/Profile.vue'
 import EditCourse from '../views/EditCourse.vue'
+import NoteEditor from '../views/NoteEditor.vue'
 
 export default createRouter({
   history: createWebHistory(),
@@ -10,6 +11,7 @@ export default createRouter({
     { path: '/', component: Dashboard },
     { path: '/add-course', component: AddCourse },
     { path: '/profile', component: Profile },
-    { path: '/edit-course/:id', component: EditCourse},
+    { path: '/note-editor', component: NoteEditor },
+    { path: '/edit-course/:id', component: EditCourse },
   ],
 })
