@@ -2,6 +2,9 @@
 import { inject, ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import NoteEditor from './NoteEditor.vue'
+import Profile from './Profile.vue'
+import * as d3 from 'd3'
+import $ from 'jquery'
 
 const router = useRouter()
 const supabase = inject('supabase')
@@ -10,6 +13,7 @@ const displayName = ref('User')
 const sidebarOpen = ref(false)
 const upcomingDue = ref('Lab 4 due Mar 20')
 const courses = ref([])
+const stressLevel = ref()
 
 // helper to compute average score for a course, ignoring nulls
 const getCourseAvg = (c) => {
@@ -54,7 +58,7 @@ const currentAvg = computed(() => {
   return (total / count).toFixed(1)
 })
 
-const debug = true
+const debug = true 
 
 const toggleSidebar = () => {
   sidebarOpen.value = !sidebarOpen.value
@@ -113,6 +117,40 @@ const handleSignOut = async () => {
   router.push('/')
 }
 
+// Function to draw a stress level bar using D3.js
+const drawStressLevelBar = () => {
+    let stressbar = d3.select('#stress-level-card')
+      .append('svg')
+      .attr('width', 300)
+      .attr('height', 20)
+
+    if (stressLevel.value > 0 && stressLevel.value <= 3) {
+      stressbar.append('rect')
+        .attr('width', (stressLevel.value / 10.0) * 300)
+        .attr('height', 20)
+        .attr('fill', 'green')
+      $('#stress-response').text("Managing everything very well!, keep it up!");
+    }
+
+    if (stressLevel.value > 3 && stressLevel.value <= 7.0) {
+      stressbar.append('rect')
+        .attr('width', (stressLevel.value / 10.0) * 300)
+        .attr('height', 20)
+        .attr('fill', 'yellow')
+      $('#stress-response').text("You're doing great! Consider taking short breaks to stay refreshed.");
+    }
+
+    if (stressLevel.value > 7.0 && stressLevel.value <= 10.0) {
+      stressbar.append('rect')
+        .attr('width', (stressLevel.value / 10.0) * 300)
+        .attr('height', 20)
+        .attr('fill', 'red')
+      $('#stress-response').text("You're feeling overwhelmed. Take a break and prioritize your tasks.");
+    }
+    
+    console.log('drawing stress level bar with value:', stressLevel.value)
+  }
+
 onMounted(async () => {
   if (debug) {
     console.log('dashboard mounted')
@@ -160,10 +198,19 @@ onMounted(async () => {
         .eq('user_id', session.user.id)
         .order('created_at', { ascending: false })
       courses.value = courseData || []
+
+      const { data: profileData } = await supabase
+        .from('student_profile')
+        .select('stress_level')
+        .eq('user_id', session.user.id)
+        .single()
+      stressLevel.value = profileData?.stress_level || ''
     }
   } catch (err) {
     console.log('session error:', err)
   }
+
+  drawStressLevelBar()
 })
 </script>
 
@@ -234,7 +281,17 @@ onMounted(async () => {
                 <p class="title is-3 has-text-white mb-0">{{ courses.length }}</p>
               </div>
             </div>
+
+            <div class="column">
+              <div class="box info-card" id="stress-level-card">
+                <p class="heading has-text-grey-light">Stress Level: {{ stressLevel }}</p>
+                <p class="is-size-7 has-text-grey mt-1" id="stress-response"></p>
+              </div> 
+            </div>
+              
           </div>
+
+          
 
           <div class="columns is-variable is-4 bottom-row">
             <div class="column is-7">
