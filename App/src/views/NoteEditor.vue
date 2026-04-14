@@ -1,34 +1,36 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
+const supabase = inject('supabase')
 
 const noteText = ref('')
 const saved = ref(false)
 
 const toggleSidebar = () => {}
 
-onMounted(() => {
-  const savedNote = sessionStorage.getItem('gc_note_editor')
-  if (savedNote) {
-    noteText.value = savedNote
-  }
+onMounted(async () => {
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) return
+  const { data } = await supabase.from('notes').select('content').eq('user_id', session.user.id).single()
+  if (data) noteText.value = data.content
 })
 
-const saveNote = () => {
-  sessionStorage.setItem('gc_note_editor', noteText.value)
+const saveNote = async () => {
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) return
+  await supabase.from('notes').upsert({ user_id: session.user.id, content: noteText.value, updated_at: new Date().toISOString() })
   saved.value = true
-
-  setTimeout(() => {
-    saved.value = false
-  }, 1500)
+  setTimeout(() => { saved.value = false }, 1500)
 }
 
-const clearNote = () => {
+const clearNote = async () => {
   noteText.value = ''
-  sessionStorage.removeItem('gc_note_editor')
   saved.value = false
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) return
+  await supabase.from('notes').upsert({ user_id: session.user.id, content: '', updated_at: new Date().toISOString() })
 }
 </script>
 
@@ -54,15 +56,15 @@ const clearNote = () => {
         </button>
 
         <section class="page-head">
-          <h1 class="title has-text-white mb-2">Note_Editor</h1>
+          <h1 class="title has-text-white mb-2">Note Editor</h1>
           <p class="has-text-grey-light">
-            Paste and keep temporary text for this session. It clears when you sign out.
+            Paste and keep text. Your note is saved to your account.
           </p>
         </section>
 
         <div class="box info-card section-card">
           <div class="field">
-            <label class="label">Session Note</label>
+            <label class="label">Note</label>
             <div class="control">
               <textarea
                 v-model="noteText"
@@ -75,7 +77,7 @@ const clearNote = () => {
 
           <div class="form-footer">
             <div class="form-message">
-              <p v-if="saved" class="saved-text">Saved for this session</p>
+              <p v-if="saved" class="saved-text">Saved</p>
             </div>
 
             <div class="note-buttons">
