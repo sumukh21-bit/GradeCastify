@@ -8,7 +8,8 @@ const supabase = inject('supabase')
 const noteText = ref('')
 const saved = ref(false)
 
-const toggleSidebar = () => {}
+// sidebar state
+const sidebarOpen = ref(false)
 
 onMounted(async () => {
   const { data: { session } } = await supabase.auth.getSession()
@@ -31,6 +32,51 @@ const clearNote = async () => {
   const { data: { session } } = await supabase.auth.getSession()
   if (!session) return
   await supabase.from('notes').upsert({ user_id: session.user.id, content: '', updated_at: new Date().toISOString() })
+}
+
+// sidebar toggle functions with debug logging
+const debug = true 
+
+const toggleSidebar = () => {
+  sidebarOpen.value = !sidebarOpen.value
+
+  if (debug) {
+    console.log('sidebar toggled:', sidebarOpen.value)
+  }
+
+}
+
+const closeSidebar = () => {
+  sidebarOpen.value = false
+
+  if (debug) {
+    console.log('sidebar closed')
+  }
+
+}
+
+const handleSignOut = async () => {
+  closeSidebar()
+
+  if (debug) {
+    console.log('sign out started')
+  }
+
+  localStorage.removeItem('gc_demo_admin')
+
+  try {
+    if (supabase) {
+      await supabase.auth.signOut()
+
+      if (debug) {
+        console.log('supabase signed out')
+      }
+    }
+  } catch (err) {
+    console.log('sign out error:', err)
+  }
+
+  router.push('/')
 }
 </script>
 
@@ -80,13 +126,19 @@ const clearNote = async () => {
               <p v-if="saved" class="saved-text">Saved</p>
             </div>
 
-            <div class="note-buttons">
-              <button class="button is-dark" type="button" @click="clearNote">
-                Clear
-              </button>
-              <button class="button is-primary save-btn" type="button" @click="saveNote">
-                Save
-              </button>
+            <div class="form-footer">
+              <div class="form-message">
+                <p v-if="saved" class="saved-text">Saved for this session</p>
+              </div>
+
+              <div class="note-buttons">
+                <button class="button is-dark" type="button" @click="clearNote">
+                  Clear
+                </button>
+                <button class="button is-primary save-btn" type="button" @click="saveNote">
+                  Save
+                </button>
+              </div>
             </div>
           </div>
         </div>
