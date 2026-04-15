@@ -25,6 +25,7 @@ const sleepHours = ref('')
 
 // sidebar state
 const sidebarOpen = ref(false)
+const upcomingDue = ref('Lab 4 due Mar 20')
 
 // load existing profile on mount
 onMounted(async () => {
@@ -165,7 +166,7 @@ const handleSignOut = async () => {
         <div class="side-inner">
           <div class="box user-card mb-4">
             <p class="is-size-7 has-text-grey mb-2">User</p>
-            <p class="has-text-white has-text-weight-semibold user-email">{{ displayName }}</p>
+            <p class="has-text-white has-text-weight-semibold user-email">{{ email }}</p>
           </div>
 
           <aside class="menu mb-5">

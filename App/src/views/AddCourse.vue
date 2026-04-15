@@ -1,5 +1,5 @@
 <script setup>
-import { inject, ref } from 'vue'
+import { inject, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 // set up supabase client and router
@@ -9,6 +9,8 @@ const router = useRouter()
 // component state
 const loading = ref(false)
 const error = ref('')
+const displayName = ref('')
+const upcomingDue = ref('Lab 4 due Mar 20')
 
 // course fields
 const courseName = ref('')
@@ -21,6 +23,19 @@ const projectsScore = ref('')
 
 // sidebar state
 const sidebarOpen = ref(false)
+
+onMounted(async () => {
+  if (!supabase) return
+  try {
+    const { data } = await supabase.auth.getSession()
+    const session = data.session
+    if (session?.user?.email) {
+      displayName.value = session.user.email
+    }
+  } catch (err) {
+    console.log('session error:', err)
+  }
+})
 
 // submit course and get grade prediction
 const submit = async () => {
