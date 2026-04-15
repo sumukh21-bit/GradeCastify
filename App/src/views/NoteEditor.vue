@@ -1,8 +1,9 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
+const supabase = inject('supabase')
 
 const noteText = ref('')
 const saved = ref(false)
@@ -10,26 +11,27 @@ const saved = ref(false)
 // sidebar state
 const sidebarOpen = ref(false)
 
-onMounted(() => {
-  const savedNote = sessionStorage.getItem('gc_note_editor')
-  if (savedNote) {
-    noteText.value = savedNote
-  }
+onMounted(async () => {
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) return
+  const { data } = await supabase.from('notes').select('content').eq('user_id', session.user.id).single()
+  if (data) noteText.value = data.content
 })
 
-const saveNote = () => {
-  sessionStorage.setItem('gc_note_editor', noteText.value)
+const saveNote = async () => {
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) return
+  await supabase.from('notes').upsert({ user_id: session.user.id, content: noteText.value, updated_at: new Date().toISOString() })
   saved.value = true
-
-  setTimeout(() => {
-    saved.value = false
-  }, 1500)
+  setTimeout(() => { saved.value = false }, 1500)
 }
 
-const clearNote = () => {
+const clearNote = async () => {
   noteText.value = ''
-  sessionStorage.removeItem('gc_note_editor')
   saved.value = false
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) return
+  await supabase.from('notes').upsert({ user_id: session.user.id, content: '', updated_at: new Date().toISOString() })
 }
 
 // sidebar toggle functions with debug logging
@@ -93,58 +95,35 @@ const handleSignOut = async () => {
       </div>
     </header>
 
-    <div class="main-layer">
-      <div class="overlay-bg" :class="{ active: sidebarOpen }" @click="closeSidebar"></div>
+    <div class="main-area">
+      <div class="main-wrap profile-wrap">
+        <button type="button" class="back-link" @click="router.push('/')">
+          ← Back
+        </button>
 
-      <aside class="side-menu" :class="{ open: sidebarOpen }">
-        <div class="side-inner">
-          <div class="box user-card mb-4">
-            <p class="is-size-7 has-text-grey mb-2">User</p>
-            <p class="has-text-white has-text-weight-semibold user-email">{{ displayName }}</p>
+        <section class="page-head">
+          <h1 class="title has-text-white mb-2">Note Editor</h1>
+          <p class="has-text-grey-light">
+            Paste and keep text. Your note is saved to your account.
+          </p>
+        </section>
+
+        <div class="box info-card section-card">
+          <div class="field">
+            <label class="label">Note</label>
+            <div class="control">
+              <textarea
+                v-model="noteText"
+                class="textarea note-editor-area"
+                rows="18"
+                placeholder="Paste or type your text here..."
+              ></textarea>
+            </div>
           </div>
 
-          <aside class="menu mb-5">
-            <p class="menu-label">Menu</p>
-            <ul class="menu-list">
-              <li><a @click="() => { closeSidebar(); router.push('/') }">Dashboard</a></li>
-              <li><a @click="() => { closeSidebar(); router.push('/add-course') }">Add Course</a></li>
-              <li><a @click="() => { closeSidebar(); router.push('/profile') }">My Profile</a></li>
-              <li><a class="is-active">Note Editor</a></li>
-            </ul>
-          </aside>
-
-          <div class="box due-card mb-5">
-            <p class="is-size-7 has-text-grey mb-2">Next deadline</p>
-            <p class="has-text-white">{{ upcomingDue }}</p>
-          </div>
-
-          <button type="button" class="button logout-btn is-fullwidth" @click="handleSignOut">
-            Sign out
-          </button>
-        </div>
-      </aside>
-
-      <div class="main-area">
-        <div class="main-wrap profile-wrap">
-
-          <section class="page-head">
-            <h1 class="title has-text-white mb-2">Note_Editor</h1>
-            <p class="has-text-grey-light">
-              Paste and keep temporary text for this session. It clears when you sign out.
-            </p>
-          </section>
-
-          <div class="box info-card section-card">
-            <div class="field">
-              <label class="label">Session Note</label>
-              <div class="control">
-                <textarea
-                  v-model="noteText"
-                  class="textarea note-editor-area"
-                  rows="18"
-                  placeholder="Paste or type your text here..."
-                ></textarea>
-              </div>
+          <div class="form-footer">
+            <div class="form-message">
+              <p v-if="saved" class="saved-text">Saved</p>
             </div>
 
             <div class="form-footer">
