@@ -212,6 +212,18 @@ onMounted(async () => {
 
   drawStressLevelBar()
 })
+
+const getPredictedGrade = (course) => {
+  const avg = getCourseAvg(course)
+  if (avg == null) return 'N/A'
+
+  if (avg >= 90) return 'A'
+  if (avg >= 80) return 'B'
+  if (avg >= 70) return 'C'
+  if (avg >= 60) return 'D'
+  return 'F'
+}
+
 </script>
 
 <template>
@@ -294,7 +306,7 @@ onMounted(async () => {
           
 
           <div class="columns is-variable is-4 bottom-row">
-            <div class="column is-7">
+            <div class="column is-12">
               <div class="box course-panel">
                 <div class="course-top mb-4">
                   <div>
@@ -333,7 +345,7 @@ onMounted(async () => {
 
                   <div class="course-actions">
                     <span class="tag is-medium predicted-tag">
-                      {{ course.predicted_grade }}
+                      {{ getPredictedGrade(course) }}
                     </span>
                     <button type="button" class="delete" @click="deleteCourse(course.id)"></button>
                     <button type="button" @click="router.push(`/edit-course/${course.id}`)">Edit</button>
@@ -342,26 +354,7 @@ onMounted(async () => {
               </div>
             </div>
 
-            <div class="column is-5">
-              <div class="box updates-panel">
-                <h2 class="title is-5 has-text-white mb-4">Recent Activity</h2>
-
-                <div class="update-item">
-                  <p class="has-text-white mb-1">No updates yet.</p>
-                  <p class="is-size-7 has-text-grey">-</p>
-                </div>
-
-                <div class="update-item">
-                  <p class="has-text-white mb-1">Course changes show here.</p>
-                  <p class="is-size-7 has-text-grey">-</p>
-                </div>
-
-                <div class="update-item">
-                  <p class="has-text-white mb-1">Add a course to begin.</p>
-                  <p class="is-size-7 has-text-grey">-</p>
-                </div>
-              </div>
-            </div>
+  
           </div>
         </div>
       </main>
