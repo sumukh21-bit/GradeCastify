@@ -45,14 +45,14 @@ Run the following commands:
 git clone https://github.com/YOUR-REPO-LINK.git
 cd GradeCastify
 ```
-2. Run the Backend
+### 2. Run the Backend
 
 Navigate to the backend folder and start the server:
 ```
 cd backend
 python -m uvicorn main:app --reload
 ```
-3. Run the Frontend
+### 3. Run the Frontend
 
 In a separate terminal, run:
 
